@@ -22,6 +22,63 @@ app.get('/', function(req, res){
   res.render('blah')
 })
 
+  app.use(express.static(__dirname));
+
+  //root path
+  app.get('/', function(req, res){
+    res.render(path.join(__dirname + '/views/index.ejs'));
+  })
+
+  //index
+  app.get('/animals', function(req, res) {
+    
+    Animal.find({}, function(err, animals) {
+      if (err) console.log(err);
+      res.json(animals);
+    })
+  })
+
+  //create
+  app.post('/animals', function(req, res) {
+    console.log(req.body);
+    var animal = Animal({
+      name: req.body.name,
+      breed: req.body.breed,
+      dob: req.body.dob,
+      gender: req.body.gender,
+      family: req.body.family,
+      status: req.body.status,
+      createdAt: req.body.createdAt
+      })
+
+    animal.save(function(err, createdAnimal) {
+      if (err) console.log(err);
+      console.log('Animal has been added');
+      res.json([createdAnimal])
+    })
+  })
+
+  app.put("/animals/:id", function(req, res) {
+    console.log(req.body.status);
+    Animal.update({_id: req.params.id}, {status: req.body.status}, function(err, updatedAnimal) {
+        if (err) console.log(err);
+        res.json(updatedAnimal);
+    })
+  })
+
+  //Delete
+  app.delete("/animals/:id", function (req, res) {
+    console.log(req.params.id);
+    Animal.remove({_id: req.params.id}, function(err, removedAnimal) {
+      console.log("Delete animal");
+      if (err) console.log(err);
+      res.json(removedAnimal);
+    })
+  })
+
+  app.use('/animals', router);
+
+
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
